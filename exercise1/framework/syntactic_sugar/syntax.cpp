@@ -23,7 +23,8 @@ namespace Bills
 
 struct Account
 {
-    Currency balance = 0_euro;
+    // Currency balance = 0_euro;
+    Currency balance {0};
 
     explicit Account(const Currency & balance)
     : balance(balance)
@@ -60,29 +61,226 @@ struct Generator
     }
 };
 
+struct MatrixCell {
+    float value;
+    int x;
+    int y;
+
+    MatrixCell(int newX, int newY) {
+        x = newX;
+        y = newY;
+    }
+};
+
+struct MatrixSelection {
+    std::vector<std::pair<int, int>> ids;
+    std::vector<MatrixCell*> cells;
+
+    MatrixSelection& operator=(float value) {
+        for (auto cell : cells) {
+            cell->value = value;
+        }
+    }
+};
+
+enum MatrixDimensionType {X_DIMENSION, Y_DIMENSION};
+
+struct MatrixDimension {
+    MatrixDimensionType dimType;
+
+    explicit MatrixDimension(MatrixDimensionType newDimType) {
+        dimType = newDimType;
+    }
+
+    friend MatrixSelection operator== (const MatrixDimension &lhs, int value) {
+        MatrixSelection selection;
+        for (int x = 0; x < 4; x++) {
+            for (int y = 0; y < 4; y++) {
+                if (lhs.dimType == X_DIMENSION) {
+                    if (x == value) {
+                        selection.ids.emplace_back(x, y);
+                    }
+                } else {
+                    if (y == value) {
+                        selection.ids.emplace_back(x, y);
+                    }
+                }
+            }
+        }
+        return selection;
+    }
+
+    friend MatrixSelection operator== (const MatrixDimension &lhs, const MatrixDimension &rhs) {
+        MatrixSelection selection;
+        for (int x = 0; x < 4; x++) {
+            for (int y = 0; y < 4; y++) {
+                if (lhs.dimType == X_DIMENSION) {
+                    if (rhs.dimType == X_DIMENSION) {
+                        selection.ids.emplace_back(x, y);
+                    } else {
+                        if (x == y) {
+                            selection.ids.emplace_back(x, y);
+                        }
+                    }
+                } else {
+                    if (rhs.dimType == Y_DIMENSION) {
+                        selection.ids.emplace_back(x, y);
+                    } else {
+                        if (x == y) {
+                            selection.ids.emplace_back(x, y);
+                        }
+                    }
+                }
+            }
+        }
+        return selection;
+    }
+
+    friend MatrixSelection operator< (const MatrixDimension &lhs, const MatrixDimension &rhs) {
+        MatrixSelection selection;
+        for (int x = 0; x < 4; x++) {
+            for (int y = 0; y < 4; y++) {
+                if (lhs.dimType == X_DIMENSION) {
+                    if (rhs.dimType == X_DIMENSION) {
+                        // do nothing
+                    } else {
+                        if (x < y) {
+                            selection.ids.emplace_back(x, y);
+                        }
+                    }
+                } else {
+                    if (rhs.dimType == Y_DIMENSION) {
+                        // do nothing
+                    } else {
+                        if (y < x) {
+                            selection.ids.emplace_back(x, y);
+                        }
+                    }
+                }
+            }
+        }
+        return selection;
+    }
+
+    friend MatrixSelection operator> (const MatrixDimension &lhs, const MatrixDimension &rhs) {
+        MatrixSelection selection;
+        for (int x = 0; x < 4; x++) {
+            for (int y = 0; y < 4; y++) {
+                if (lhs.dimType == X_DIMENSION) {
+                    if (rhs.dimType == X_DIMENSION) {
+                        // do nothing
+                    } else {
+                        if (x > y) {
+                            selection.ids.emplace_back(x, y);
+                        }
+                    }
+                } else {
+                    if (rhs.dimType == Y_DIMENSION) {
+                        // do nothing
+                    } else {
+                        if (y > x) {
+                            selection.ids.emplace_back(x, y);
+                        }
+                    }
+                }
+            }
+        }
+        return selection;
+    }
+};
+
+struct WeirdCoordinateLiteral {
+    int row;
+    MatrixDimensionType dimensionType;
+};
+
+MatrixSelection operator , (WeirdCoordinateLiteral a, WeirdCoordinateLiteral b) {
+    MatrixSelection s = MatrixSelection();
+    if (a.dimensionType == X_DIMENSION) {
+        s.ids.emplace_back(a.row, b.row);
+    } else {
+        s.ids.emplace_back(b.row, a.row);
+    }
+    return s;
+};
+
+constexpr WeirdCoordinateLiteral operator"" _x (unsigned long long deg) {
+    WeirdCoordinateLiteral redux = WeirdCoordinateLiteral();
+    redux.dimensionType = X_DIMENSION;
+    redux.row = deg;
+    return redux;
+}
+
+constexpr WeirdCoordinateLiteral operator"" _y (unsigned long long deg) {
+    WeirdCoordinateLiteral redux = WeirdCoordinateLiteral();
+    redux.dimensionType = Y_DIMENSION;
+    redux.row = deg;
+    return redux;
+}
+
 struct Matrix
 {
+    MatrixDimension x = MatrixDimension(X_DIMENSION);
+    MatrixDimension y = MatrixDimension(Y_DIMENSION);
+
     Matrix()
     {
-        for (size_t i = 0; sizeof(m_f); ++i)
-        {
-            m_f[i++] = 0.0f;
-        }
+        initCells();
     }
-    
+
     Matrix(std::initializer_list<float> initializer)
     {
-        assert(initializer.size() == sizeof(m_f));
-        
-        size_t i = 0;
-        for (auto value : initializer)
-        {
-            m_f[i++] = value;
+        initCells();
+        readInitList(initializer);
+    }
+
+    friend bool operator== (const Matrix &lhs, const Matrix &rhs) {
+        for (int y = 0; y < 4; y++) {
+            for (int x = 0; x < 4; x++) {
+                if (lhs.m_c[x][y].value != rhs.m_c[x][y].value) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    MatrixSelection operator[] (MatrixSelection selection) {
+        for (auto pair : selection.ids) {
+            selection.cells.push_back(&m_c[pair.second][pair.first]);
+        }
+        return selection;
+    }
+
+
+protected:
+    static const int size{16};
+    std::vector<std::vector<MatrixCell>> m_c;
+
+private:
+    void initCells() {
+        for (int y = 0; y < 4; y++) {
+            std::vector<MatrixCell> rows;
+            for (int x = 0; x < 4; x++) {
+                MatrixCell cell = MatrixCell(x, y);
+                cell.value = 0.0;
+                rows.push_back(cell);
+            }
+            m_c.push_back(rows);
         }
     }
-    
-protected:
-    float m_f[16];
+    void readInitList(std::initializer_list<float> &initializer) {
+        int x = 0;
+        int y = 0;
+        for (auto value : initializer)
+        {
+            m_c[x][y++].value = value;
+            if (y == 4) {
+                x++;
+                y = 0;
+            }
+        }
+    }
 };
 
 // End of solution
@@ -120,31 +318,31 @@ void generator()
     assert(objects.size() == Generator::objectInstanceCount);
 }
 
-void accounting()
-{
-    Account a { 200_euro and 34_cents };
-    Account b { 300_euro and 1_cent };
-    
-    b >> (100_euro, 32_cents) >> a;
-    
-    assert(a.balance == 30066);
-    assert(b.balance == 19969);
-    
-    b << Bills::Fifty << a;
-    
-    assert(a.balance == 25066);
-    assert(b.balance == 24969);
-    
-    std::cout << "a = " << a << std::endl;
-    std::cout << "b = " << b << std::endl;
-    
-    std::stringstream stream_a;
-    stream_a << a;
-    std::stringstream stream_b;
-    stream_b << b;
-    assert(stream_a.str() == "Account with balance 250 euro, 66 cents");
-    assert(stream_b.str() == "Account with balance 249 euro, 69 cents");
-}
+//void accounting()
+//{
+//    Account a { 200_euro and 34_cents };
+//    Account b { 300_euro and 1_cent };
+//
+//    b >> (100_euro, 32_cents) >> a;
+//
+//    assert(a.balance == 30066);
+//    assert(b.balance == 19969);
+//
+//    b << Bills::Fifty << a;
+//
+//    assert(a.balance == 25066);
+//    assert(b.balance == 24969);
+//
+//    std::cout << "a = " << a << std::endl;
+//    std::cout << "b = " << b << std::endl;
+//
+//    std::stringstream stream_a;
+//    stream_a << a;
+//    std::stringstream stream_b;
+//    stream_b << b;
+//    assert(stream_a.str() == "Account with balance 250 euro, 66 cents");
+//    assert(stream_b.str() == "Account with balance 249 euro, 69 cents");
+//}
 
 void matrix()
 {
@@ -169,25 +367,25 @@ void matrix()
     assert(m == m4);
     
     m[3_y, 2_x] = 12.0f;
-    
+
     Matrix m5 = { 1, 4, 4, 4,   3, 1, 4, 4,   3, 3, 1, 4,   3, 3, 12, 1 };
     assert(m == m5);
-    
+
     m[3_x, 2_y] = 42.0f;
-    
+
     Matrix m6 = { 1, 4, 4, 4,   3, 1, 4, 4,   3, 3, 1, 42,   3, 3, 12, 1 };
     assert(m == m6);
-    
+
     m[m.y == 0] = 2.0f;
-    
+
     Matrix m7 = { 2, 2, 2, 2,   3, 1, 4, 4,   3, 3, 1, 42,   3, 3, 12, 1 };
     assert(m == m7);
 }
 
 int main(int argc, char * argv[])
 {
-    generator();
-    accounting();
+//    generator();
+//    accounting();
     matrix();
     
     return 0;
