@@ -19,10 +19,33 @@ TEST(PalindromeChecker, RecognizesNonPalindromLineIsNoPalindrome) {
     EXPECT_FALSE(result);
 }
 
-TEST(Asdf, Jjk) {
-    std::cerr << __TIME__ << std::endl;
-    std::cerr << __DATE__ << std::endl;
+TEST(PalindromeSorter, SortsUnevenPalindromeTooTheFront) {
+    std::vector<std::string> list;
+    list.push_back("asdf");
+    list.push_back("qwq");
+    auto result = sortByPalindrome(list);
+    std::vector<std::string> expected;
+    expected.push_back("qwq");
+    expected.push_back("asdf");
+    EXPECT_EQ(expected.size(), result.size());
+}
 
+TEST(PalindromeSorter, SortsTwoPalindromesTooTheFront) {
+    std::vector<std::string> list;
+    list.push_back("asdf");
+    list.push_back("otto");
+    list.push_back("qwer");
+    list.push_back("qwq");
+    auto result = sortByPalindrome(list);
+    std::vector<std::string> expected;
+    expected.push_back("qwq");
+    expected.push_back("otto");
+    expected.push_back("asdf");
+    expected.push_back("qwer");
+    EXPECT_EQ(expected.size(), result.size());
+    for (int i=0; i<4; i++) {
+        EXPECT_EQ(expected[i], result[i]);
+    }
 }
 
 int main(int argc, char **argv) {

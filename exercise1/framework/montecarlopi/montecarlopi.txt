@@ -1,0 +1,12 @@
+-   Float Tries: 1263871
+    Double Tries: 8308023
+    Long Double Tries: 1788553
+
+    ...varies greatly
+
+-   (in-) Exact Output of float Pi: 3.14159265
+    (in-) Exact Output of double Pi: 3.1415926535897931
+    (in-) Exact Output of long double Pi: 3.141592653589793116
+
+-   encode 20 digits -> need at least 67 Bits
+        ...floor(ln(10^20)/ln(2)) + 1

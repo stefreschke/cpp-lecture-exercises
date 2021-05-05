@@ -5,7 +5,6 @@
 #include <vector>
 #include <sstream>
 
-// TODO: Start of solution
 // You may edit / add anything from here to satisfy the interfaces and behaviors expected by the execution code below
 
 struct Currency
@@ -133,14 +132,47 @@ struct Converter
     operator Object() const { return Object{ m_value, true }; }
 };
 
+
 struct Generator
 {
-    static size_t objectInstanceCount;
-    
-    Object operator()()
-    {
+    float createFloat() {
+        return 1337.42;
+    }
+
+    Object createObject() {
         return Object(rand(), true);
     }
+
+    class Proxy
+    {
+        Generator * proxied;
+    public:
+        explicit Proxy(Generator* actualGenerator) {
+            proxied = actualGenerator;
+        }
+        // this just seems so silly
+        // ...thx for the hint in the forum :)
+        operator float() const
+        {
+            return proxied->createFloat();
+        }
+        operator Object() const
+        {
+            return proxied->createObject();
+        }
+
+        static size_t objectInstanceCount;
+    };
+
+    static size_t objectInstanceCount;
+
+    // gen()
+    Proxy operator()()
+    {
+        return Proxy{this};
+    }
+
+
 };
 
 struct MatrixCell {

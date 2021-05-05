@@ -115,9 +115,9 @@ int main(int argc, char * argv[])
 	std::cout << "(in-) Exact Output of float Pi: " << E_PI << std::endl;
 
     std::cout.precision(std::numeric_limits<double>::max_digits10);
-    std::cout << "(in-) Exact Output of float Pi: " << E_PI << std::endl;
+    std::cout << "(in-) Exact Output of double Pi: " << E_PI << std::endl;
 
     std::cout.precision(std::numeric_limits<long double>::max_digits10);
-    std::cout << "(in-) Exact Output of float Pi: " << E_PI << std::endl;
+    std::cout << "(in-) Exact Output of long double Pi: " << E_PI << std::endl;
 	return 0;
 }
