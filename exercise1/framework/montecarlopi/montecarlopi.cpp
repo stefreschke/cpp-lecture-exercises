@@ -1,6 +1,5 @@
 
 #include <iostream>
-#include <tuple>
 #include <random>
 #include <iomanip>
 #include <cmath>
@@ -52,8 +51,8 @@ private:
         return (distanceCalculator.distance(randomNumberGenerator.create_random_number()) <= 1);
     }
     bool currentApproximationIsStable(T newResult) const {
-        return newResult == approximationResult;
-        // return newResult >= 3.1413 && newResult <= 3.1419;
+        // return newResult == approximationResult;
+        return newResult >= 3.1413 && newResult <= 3.1419;
     }
     void initializeNewApproximation() {
         approximationResult = 0;
@@ -62,7 +61,7 @@ private:
         stableApproximationForRounds = 0;
     }
     T actuallyPerformApproximation() {
-        while (stableApproximationForRounds < 1000) {
+        while (stableApproximationForRounds < 10000) {
             ++pointsGenerated;
             if (nextPoint()) {
                 ++pointsInCircle;
@@ -89,21 +88,18 @@ template class PiApprox<long double>;
 int monteCarlo_float() {
 	PiApprox<float> piApprox;
 	piApprox.approx();
-	std::cout << piApprox.retrieveLastResult() << std::endl;
 	return piApprox.retrieveGeneratedPoints();
 }
 
 int monteCarlo_double() {
     PiApprox<double> piApprox;
     piApprox.approx();
-    std::cout << piApprox.retrieveLastResult() << std::endl;
     return piApprox.retrieveGeneratedPoints();
 }
 
 int monteCarlo_long_double() {
     PiApprox<long double> piApprox;
     piApprox.approx();
-    std::cout << piApprox.retrieveLastResult() << std::endl;
     return piApprox.retrieveGeneratedPoints();
 }
 
@@ -111,16 +107,17 @@ int monteCarlo_long_double() {
 
 int main(int argc, char * argv[])
 {
-    std::cout.precision(std::numeric_limits<float>::max_digits10);
 	std::cout << "Float Tries: " <<  monteCarlo_float() << std::endl;
-
-    std::cout.precision(std::numeric_limits<double>::max_digits10);
 	std::cout << "Double Tries: " << monteCarlo_double() << std::endl;
-
-    std::cout.precision(std::numeric_limits<long double>::max_digits10);
 	std::cout << "Long Double Tries: " << monteCarlo_long_double() << std::endl;
 	
-	// TODO: Provide an exact output using the three data types.
+    std::cout.precision(std::numeric_limits<float>::max_digits10);
 	std::cout << "(in-) Exact Output of float Pi: " << E_PI << std::endl;
+
+    std::cout.precision(std::numeric_limits<double>::max_digits10);
+    std::cout << "(in-) Exact Output of float Pi: " << E_PI << std::endl;
+
+    std::cout.precision(std::numeric_limits<long double>::max_digits10);
+    std::cout << "(in-) Exact Output of float Pi: " << E_PI << std::endl;
 	return 0;
 }

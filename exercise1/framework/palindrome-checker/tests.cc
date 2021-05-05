@@ -19,7 +19,13 @@ TEST(PalindromeChecker, RecognizesNonPalindromLineIsNoPalindrome) {
     EXPECT_FALSE(result);
 }
 
-/*int main(int argc, char **argv) {
+TEST(Asdf, Jjk) {
+    std::cerr << __TIME__ << std::endl;
+    std::cerr << __DATE__ << std::endl;
+
+}
+
+int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
-}*/
+}

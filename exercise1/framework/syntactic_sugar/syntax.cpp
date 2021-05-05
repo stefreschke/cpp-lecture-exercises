@@ -11,7 +11,49 @@
 struct Currency
 {
     unsigned long long int cents;
+
+    Currency operator+(Currency rhs) {
+        Currency newCurrency = Currency();
+        newCurrency.cents = rhs.cents + cents;
+        return newCurrency;
+    }
+
+    Currency operator, (Currency rhs) {
+        return operator+(rhs);
+    }
+
+    friend Currency operator &&(Currency lhs, Currency rhs) {
+        return lhs + rhs;
+    }
+
+    friend bool operator==(Currency lhs, int rhs) {
+        return lhs.cents == rhs;
+    }
+
+    friend void operator+= (Currency& lhs, Currency rhs) {
+        lhs.cents += rhs.cents;
+    }
+
+    friend void operator-= (Currency& lhs, Currency rhs) {
+        lhs.cents -= rhs.cents;
+    }
 };
+
+constexpr Currency operator"" _euro (unsigned long long value) {
+    Currency c = Currency();
+    c.cents = 100 * value;
+    return c;
+}
+
+constexpr Currency operator"" _cents (unsigned long long value) {
+    Currency c = Currency();
+    c.cents = value;
+    return c;
+}
+
+constexpr Currency operator"" _cent (unsigned long long value) {
+    return operator""_cents(value);
+}
 
 namespace Bills
 {
@@ -23,14 +65,54 @@ namespace Bills
 
 struct Account
 {
-    // Currency balance = 0_euro;
-    Currency balance {0};
+    Currency balance = 0_euro;
 
     explicit Account(const Currency & balance)
     : balance(balance)
     {
     }
 };
+
+std::ostream& operator<<(std::ostream& os, const Account& a) {
+    int euros = a.balance.cents * 1.0 / 100;
+    int cents = a.balance.cents % 100;
+    os << "Account with balance " << euros << " euro, " << cents << " cents";
+    return os;
+}
+
+struct Transaction {
+    Account* from;
+    Account* to;
+    Currency amount;
+    void apply() const {
+        from->balance -= amount;
+        to->balance += amount;
+    }
+};
+
+Transaction operator>>(Account& account, Currency currency) {
+    auto trans = Transaction();
+    trans.from = &account;
+    trans.amount = currency;
+    return trans;
+}
+
+void operator>>(Transaction trans, Account& other) {
+    trans.to = &other;
+    trans.apply();
+}
+
+Transaction operator<<(Account& account, Currency currency) {
+    auto trans = Transaction();
+    trans.to = &account;
+    trans.amount = currency;
+    return trans;
+}
+
+void operator<<(Transaction trans, Account& other) {
+    trans.from = &other;
+    trans.apply();
+}
 
 struct Object
 {
@@ -318,31 +400,31 @@ void generator()
     assert(objects.size() == Generator::objectInstanceCount);
 }
 
-//void accounting()
-//{
-//    Account a { 200_euro and 34_cents };
-//    Account b { 300_euro and 1_cent };
-//
-//    b >> (100_euro, 32_cents) >> a;
-//
-//    assert(a.balance == 30066);
-//    assert(b.balance == 19969);
-//
-//    b << Bills::Fifty << a;
-//
-//    assert(a.balance == 25066);
-//    assert(b.balance == 24969);
-//
-//    std::cout << "a = " << a << std::endl;
-//    std::cout << "b = " << b << std::endl;
-//
-//    std::stringstream stream_a;
-//    stream_a << a;
-//    std::stringstream stream_b;
-//    stream_b << b;
-//    assert(stream_a.str() == "Account with balance 250 euro, 66 cents");
-//    assert(stream_b.str() == "Account with balance 249 euro, 69 cents");
-//}
+void accounting()
+{
+    Account a { 200_euro and 34_cents };
+    Account b { 300_euro and 1_cent };
+
+    b >> (100_euro, 32_cents) >> a;
+
+    assert(a.balance == 30066);
+    assert(b.balance == 19969);
+
+    b << Bills::Fifty << a;
+
+    assert(a.balance == 25066);
+    assert(b.balance == 24969);
+
+    std::cout << "a = " << a << std::endl;
+    std::cout << "b = " << b << std::endl;
+
+    std::stringstream stream_a;
+    stream_a << a;
+    std::stringstream stream_b;
+    stream_b << b;
+    assert(stream_a.str() == "Account with balance 250 euro, 66 cents");
+    assert(stream_b.str() == "Account with balance 249 euro, 69 cents");
+}
 
 void matrix()
 {
@@ -384,9 +466,8 @@ void matrix()
 
 int main(int argc, char * argv[])
 {
-//    generator();
-//    accounting();
     matrix();
-    
+    accounting();
+    generator();
     return 0;
 }

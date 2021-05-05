@@ -1,0 +1,5 @@
+g++ -std=c++14 -DPROVIDER_NAME="806932" -c provider.cpp
+g++ -std=c++14 -DPROVIDER_API_EXPORTS -shared -fPIC -o provider.so ./provider.o
+g++ -std=c++14 -c providerlibtest.cpp
+g++ -std=c++14 -o test providerlibtest.o ./provider.so
+./test
