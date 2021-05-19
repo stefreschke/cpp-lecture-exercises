@@ -9,19 +9,19 @@
 void test()
 {
     auto g1 = GraphFactory::createLinearGraph(5, 0);
-    std::cout << *g1 << std::endl;
+    std::cout << *(g1.get()) << std::endl;
 
     auto g2 = GraphFactory::createLinearGraph(5, 4);
-    std::cout << *g2 << std::endl;
+    std::cout << *(g2.get()) << std::endl;
 
     g1->merge(g2);
-    std::cout << *g1 << std::endl;
+    std::cout << *(g1.get()) << std::endl;
 
     auto g3 = GraphFactory::createTree(10, 9);
-    std::cout << *g3 << std::endl;
+    std::cout << *(g3.get()) << std::endl;
 
     g1->merge(g3);
-    std::cout << *g1 << std::endl;
+    std::cout << *(g1.get()) << std::endl;
 
     auto g4 = GraphFactory::createRandomGraph(123);
     auto g5 = GraphFactory::createRandomGraph(42);
