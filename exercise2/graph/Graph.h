@@ -45,9 +45,9 @@ private:
     std::int32_t m_weight;
 
     // Vertex * m_v0;
-    std::shared_ptr<Vertex> m_v0;
+    std::weak_ptr<Vertex> m_v0;
     // Vertex * m_v1;
-    std::shared_ptr<Vertex> m_v1;
+    std::weak_ptr<Vertex> m_v1;
 
     InstanceCounter<Edge> m_instanceCounter;
 };

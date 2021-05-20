@@ -22,7 +22,7 @@ std::shared_ptr<Graph> GraphFactory::createLinearGraph(std::int32_t numVertices,
     for (auto i = std::int32_t{1}; i < numVertices; ++i)
     {
         // graph->addEdge(new Edge{graph->vertices()[i - 1], graph->vertices()[i], 1});
-        graph->addEdge(std::make_shared<Edge>(graph->vertices()[i - 1], graph->vertices()[i], 1));
+        graph->addEdge(std::make_unique<Edge>(graph->vertices()[i - 1], graph->vertices()[i], 1));
     }
     return graph;
 }
@@ -33,7 +33,7 @@ std::shared_ptr<Graph> GraphFactory::createCircularGraph(std::int32_t numVertice
 {
     auto graph = createLinearGraph(numVertices, idOffset);
     // graph->addEdge(new Edge{graph->vertices().back(), graph->vertices().front(), 1});
-    graph->addEdge(std::make_shared<Edge>(graph->vertices().back(), graph->vertices().front(), 1));
+    graph->addEdge(std::make_unique<Edge>(graph->vertices().back(), graph->vertices().front(), 1));
     return graph;
 }
 
@@ -49,7 +49,7 @@ std::shared_ptr<Graph> GraphFactory::createTree(std::int32_t numChildren, std::i
         // graph->addVertex(new Vertex{idOffset + i + 1});
         graph->addVertex(std::make_shared<Vertex>(idOffset + i + 1));
         // graph->addEdge(new Edge{graph->vertices().front(), graph->vertices().back(), 1});
-        graph->addEdge(std::make_shared<Edge>(graph->vertices().front(), graph->vertices().back(), 1));
+        graph->addEdge(std::make_unique<Edge>(graph->vertices().front(), graph->vertices().back(), 1));
     }
     return graph;
 }
@@ -92,10 +92,10 @@ std::shared_ptr<Graph> GraphFactory::createRandomGraph(std::int32_t numVertices,
             if (v0 != v1)
             {
                 // auto edge = new Edge{ v0, v1, 1 };
-                auto edge = std::make_shared<Edge>(v0, v1, 1);
-                if (edgeSet.find(makeId(edge)) == edgeSet.end())
+                auto edge = std::make_unique<Edge>(v0, v1, 1);
+                if (edgeSet.find(std::make_pair(edge->v0()->id(), edge->v1()->id())) == edgeSet.end())
                 {
-                    edgeSet.insert(makeId(edge));
+                    edgeSet.insert(std::make_pair(edge->v0()->id(), edge->v1()->id()));
                     graph->addEdge(std::move(edge));
                 }
             }

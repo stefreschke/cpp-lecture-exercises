@@ -64,14 +64,22 @@ std::int32_t Edge::weight() const
 // Vertex * Edge::v0() const
 std::shared_ptr<Vertex> Edge::v0() const
 {
-    return m_v0;
+    if (auto shr = m_v0.lock()) {
+        return shr;
+    } else {
+        return nullptr;
+    }
 }
 
 
 // Vertex * Edge::v1() const
 std::shared_ptr<Vertex> Edge::v1() const
 {
-    return m_v1;
+    if (auto shr = m_v1.lock()) {
+        return shr;
+    } else {
+        return nullptr;
+    }
 }
 
 
@@ -106,7 +114,7 @@ void Graph::addVertex(std::shared_ptr<Vertex> vertex)
 // void Graph::addEdge(Edge * edge)
 void Graph::addEdge(std::shared_ptr<Edge> edge)
 {
-    m_edges.emplace_back(edge);
+    m_edges.emplace_back(std::move(edge));
 }
 
 
@@ -116,7 +124,9 @@ void Graph::merge(std::shared_ptr<Graph> g2)
     // Edge id for the purpose of creating a map/set
     using EdgeId = std::pair<std::int32_t, std::int32_t>;
     // auto makeId = [](Edge * edge) { return std::make_pair(edge->v0()->id(), edge->v1()->id()); };
-    auto makeId = [](std::shared_ptr<Edge> edge) { return std::make_pair(edge->v0()->id(), edge->v1()->id()); };
+    auto makeId = [](std::shared_ptr<Edge> edge) {
+        return std::make_pair(edge->v0()->id(), edge->v1()->id());
+    };
 
     // build map for fast lookup of vertices by id
     // auto vertexMap = std::map<int, Vertex *>{};
@@ -130,7 +140,7 @@ void Graph::merge(std::shared_ptr<Graph> g2)
     auto edgeSet = std::set<EdgeId>{};
     for (const auto & edge : m_edges)
     {
-        edgeSet.insert(makeId(edge));
+        edgeSet.insert(std::make_pair(edge->v0()->id(), edge->v1()->id()));
     }
 
     // merge vertices
@@ -146,14 +156,15 @@ void Graph::merge(std::shared_ptr<Graph> g2)
     // merge edges
     for (const auto & edge : g2->m_edges)
     {
-        if (edgeSet.find(makeId(edge)) == edgeSet.end())
+        if (edgeSet.find(std::make_pair(edge->v0()->id(), edge->v1()->id())) == edgeSet.end())
         {
             // rewire pointers
             const auto & v0 = vertexMap[edge->v0()->id()];
             const auto & v1 = vertexMap[edge->v1()->id()];
             edge->reset(v0, v1);
 
-            edgeSet.insert(makeId(edge));
+            edgeSet.insert(std::make_pair(edge->v0()->id(), edge->v1()->id()));
+            m_edges.push_back(edge);
             m_edges.emplace_back(edge);
         }
     }
