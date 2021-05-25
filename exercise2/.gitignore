@@ -1,0 +1,4 @@
+/regex-filter/cmake-build-debug/
+/graph/cmake-build-debug/
+*.o
+/runner/runner

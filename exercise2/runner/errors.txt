@@ -1,0 +1,13 @@
+Exceptions:
+Invalid argument
+array::at: __n (which is 10000) >= _Nm (which is 1000)
+bad_function_call
+basic_ios::clear: iostream error
+regex_error
+std::bad_cast
+stoi
+
+Signals:
+SIGFPE
+SIGINT
+SIGSEGV
