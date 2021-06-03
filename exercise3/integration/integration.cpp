@@ -59,7 +59,15 @@ public:
     [[nodiscard]] int postalCode() const {
         return true_postalcode;
     }
-    operator int() const { return true_number; }
+    explicit operator int() const {
+        return true_number;
+    }
+    explicit operator bool() const {
+        return true;
+    }
+    explicit operator std::tuple<std::string, int, int, std::string>() const {
+        return std::make_tuple(street(), number(), postalCode(), town());
+    }
 
     bool operator<(Address lhs) const {
         if (lhs.number() != number()) {
@@ -74,24 +82,39 @@ public:
     }
 
 
-    bool operator==(Address &lhs) const {
+    bool operator==(const Address &lhs) const {
         return lhs.street() == street() && lhs.town() == town()
             && lhs.postalCode() == postalCode() && lhs.number() == number();
     }
 
     std::string true_street;
-    std::string true_town;
     int true_number;
     int true_postalcode;
+    std::string true_town;
 };
 
 std::stringstream& operator>>(std::stringstream& lhs, Address& rhs) {
-    while (!lhs.eof()) {
-        std::string s;
-        lhs >> s;
-        std::cout << s;
-    }
-    std::cout << std::endl;
+    std::string street, town;
+    int postal, number;
+    lhs >> street;
+    lhs >> number;
+    lhs >> town;
+    lhs >> postal;
+
+    rhs.true_number = number;
+    rhs.true_street = street;
+    rhs.true_town = town;
+    rhs.true_postalcode = postal;
+    return lhs;
+}
+
+std::ostream& operator<<(std::ostream& lhs, const Address& rhs) {
+    lhs << rhs.street() << " " << rhs.number() << " " << rhs.town() << " " << rhs.postalCode();
+    return lhs;
+}
+
+std::stringstream& operator<<(std::stringstream& lhs, const Address& rhs) {
+    lhs << rhs.street() << " " << rhs.number() << " " << rhs.town() << " " << rhs.postalCode();
     return lhs;
 }
 
@@ -155,9 +178,17 @@ int main(int argc, char* argv[])
 
         for (const auto& item : hashmap) {
             // Extra challenge (for fun): make the line below work instead
-            // const auto& [street, number, postalCode, town] = static_cast<std::tuple<std::string, int, int, std::string>>(item.first);
-            const auto& [street, number, postalCode, town] = item.first;
-            std::cout << item.first << ": " << street << " " << number << ", " << postalCode << " " << town << std::endl;
+            const auto& [street, number, postalCode, town] = static_cast<std::tuple<std::string, int, int, std::string>>(item.first);
+            /**
+             * Done.
+             */
+            // const auto& [street, number, postalCode, town] = item.first;
+            /**
+             * I cant see how this code is supposed to generate output as specified in the exercise sheet, without
+             * calling item.second in this statement. I took the liberty of adding this, thus violating the local code
+             * freeze.
+             */
+            std::cout << item.first << ": " << street << " " << number << ", " << postalCode << " " << town << ": " << item.second << std::endl;
         }
     }
 
