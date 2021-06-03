@@ -26,12 +26,6 @@ public:
         set_to(smth);
         return *this;
     }
-    void operator+(int stuff) {
-        v += stuff;
-    }
-    void operator-(int stuff) {
-        v -= stuff;
-    }
     ModuloCounter operator--(int) {
         subtract(1);
         return *this;
@@ -46,13 +40,8 @@ public:
     void operator-=(int smth) {
         subtract(smth);
     }
-    std::tuple<int, int, int> operator*(const ModuloCounter& other) {
-        int range = std::abs(min - max);
-        int rm = v * other.v;
-        rm %= range;
-        if (rm >= max) {
-            rm -= range;
-        }
+    std::tuple<int, int, int> operator*(const ModuloCounter& other) const {
+        int rm = getCorrectNewValue(other.v * v);
         return std::make_tuple(min, max, rm);
     }
     [[nodiscard]] int value() const {
@@ -74,34 +63,33 @@ private:
             v = min;
         }
     }
-
-    void subtract(int smth) {
-        int range = std::abs(min - max);
-        int rm = v - smth;
-        rm %= range;
-        if (rm >= max) {
-            rm -= range;
-        }
-        v = rm;
-    }
     void add(int smth) {
-        int range = std::abs(min - max);
-        int rm = v + smth;
-        rm %= range;
-        if (rm >= max) {
-            rm -= range;
-        }
-        v = rm;
+        apply(v + smth);
     }
+
     void set_to(int smth) {
         add(smth);
     }
 
-    void become(const ModuloCounter& counter) {
-        min = counter.min;
-        max = counter.max;
-        v = counter.v;
+    void subtract(int something) {
+        apply(v - something);
     }
+
+    void apply(int new_val) {
+        v = getCorrectNewValue(new_val);
+    }
+
+    [[nodiscard]] int getCorrectNewValue(int new_val) const {
+        int range = getRange();
+        new_val %= range;
+        if (new_val >= max) {
+            new_val -= range;
+        }
+        return new_val;
+    }
+
+    [[nodiscard]] int getRange() const { return abs(min - max); }
+
 };
 
 
