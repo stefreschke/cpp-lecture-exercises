@@ -11,7 +11,7 @@ int main(int argc, char * argv[])
     m1 += 23;
     std::cout << m1 << std::endl;
 
-    auto m2 = ++m1;;
+    auto m2 = ++m1;
     std::cout << m1 << std::endl;
     std::cout << m2 << std::endl;
 
@@ -30,7 +30,6 @@ int main(int argc, char * argv[])
 
     m5 = m2;
     std::cout << m5 << std::endl;
-    // set m5 to m2
 
     ModuloCounter m6 {-11, -3, m5.value()};
     std::cout << m6 << std::endl;
