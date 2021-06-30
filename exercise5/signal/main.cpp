@@ -44,7 +44,9 @@ int main(int argc, char * argv[])
 
     e.fire.connect(f);
     e.update.connect([](int i) { std::cout << "lambda fired: " << i << std::endl; });
-    // e.errorHandler.connect(output, &ErrorOutput::print);
-    
+
+    const std::function<void(const ErrorOutput, int, const std::string &)> schnuff = &ErrorOutput::print;
+    e.errorHandler.connect(output, schnuff);
+
     e.emit();
 }

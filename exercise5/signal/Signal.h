@@ -4,14 +4,21 @@
 #include <vector>
 #include <functional>
 
-template <typename ...T>
+template<typename ...T>
 class Signal {
 public:
 
     Signal() = default;
 
-    void connect(const std::function<void(T...)>& smth) {
-        functions.push_back(smth);
+    void connect(const std::function<void(T...)> &lambda) {
+        functions.push_back(lambda);
+    }
+
+    template<typename K>
+    void connect(K k, const std::function<void(const K, T...)> &lambda) {
+        functions.push_back([k, lambda](T... t) {
+            lambda(k, t...);
+        });
     }
 
     void emit(T... t) {
