@@ -45,8 +45,15 @@ int main(int argc, char * argv[])
     e.fire.connect(f);
     e.update.connect([](int i) { std::cout << "lambda fired: " << i << std::endl; });
 
-    const std::function<void(const ErrorOutput, int, const std::string &)> schnuff = &ErrorOutput::print;
-    e.errorHandler.connect(output, schnuff);
+    const std::function<void(const ErrorOutput, int, const std::string &)> stuff = &ErrorOutput::print;
+    e.errorHandler.connect(output, stuff);
+
+    // directly connecting without cast won't compile,
+    // I don't understand why, do you have an idea?
+    // An answer to this is more important to me than spending another hour
+    // just to hunt for the exam point :)
+
+    // e.errorHandler.connect(output, &ErrorOutput::print);
 
     e.emit();
 }

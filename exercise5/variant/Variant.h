@@ -17,7 +17,9 @@ public:
     }
 
     template <typename T> T get() {
-        return *static_cast<T*>(stuff);
+        if (hasType<T>())
+            return *static_cast<T*>(stuff);
+        throw std::logic_error("IMPOSSIBLE");
     }
 private:
     void* stuff{};
