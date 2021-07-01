@@ -50,8 +50,6 @@ int main(int argc, char * argv[])
 
     // directly connecting without cast won't compile,
     // I don't understand why, do you have an idea?
-    // An answer to this is more important to me than spending another hour
-    // just to hunt for the exam point :)
 
     // e.errorHandler.connect(output, &ErrorOutput::print);
 
