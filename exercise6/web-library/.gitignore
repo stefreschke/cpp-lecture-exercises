@@ -2,3 +2,5 @@
 /binaryen
 /emsdk
 /emscripten
+/build/CMakeFiles/
+/CMakeFiles/
