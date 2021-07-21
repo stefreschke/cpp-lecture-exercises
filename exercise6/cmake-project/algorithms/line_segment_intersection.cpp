@@ -1,12 +1,7 @@
-/**
- * @file
- * @brief check whether two line segments intersect each other
- * or not.
- */
 #include <algorithm>
-#include "line_segment_intersection.h"
+#include <line_segment_intersection.h>
 
-bool SegmentIntersection::on_segment(Point first_point, Point second_point,
+bool geometry::lsi::SegmentIntersection::on_segment(Point first_point, Point second_point,
                                      Point third_point) {
     if (std::min(first_point.x, second_point.x) <= third_point.x &&
         third_point.x <= std::max(first_point.x, second_point.x) &&
@@ -18,7 +13,7 @@ bool SegmentIntersection::on_segment(Point first_point, Point second_point,
         return false;
 }
 
-int SegmentIntersection::direction(Point first_point, Point second_point,
+int geometry::lsi::SegmentIntersection::direction(Point first_point, Point second_point,
                                    Point third_point) {
     return ((third_point.x - first_point.x) *
             (second_point.y - first_point.y)) -
@@ -26,7 +21,7 @@ int SegmentIntersection::direction(Point first_point, Point second_point,
             (third_point.y - first_point.y));
 }
 
-bool SegmentIntersection::intersect(Point first_point, Point second_point,
+bool geometry::lsi::SegmentIntersection::intersect(Point first_point, Point second_point,
                                     Point third_point, Point forth_point) {
     int direction1 = direction(third_point, forth_point, first_point);
     int direction2 = direction(third_point, forth_point, second_point);

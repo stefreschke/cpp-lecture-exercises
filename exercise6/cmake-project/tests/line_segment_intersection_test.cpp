@@ -1,8 +1,3 @@
-/**
- * @file
- * @brief check whether two line segments intersect each other
- * or not.
- */
 #include <iostream>
 #include <line_segment_intersection.h>
 
@@ -11,7 +6,7 @@
  * working well.
  */
 int main() {
-    SegmentIntersection segment;
+    geometry::lsi::SegmentIntersection segment;
     Point first_point{}, second_point{}, third_point{}, forth_point{};
 
     std::cin >> first_point.x >> first_point.y;
