@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <script src="process.js"></script>
+    <script>
+      var process = Module.cwrap('process', 'number', '[number]');
+      
+      for (var i = 0; i <= 100; ++i) {
+        console.log("Call with", i, "results in", process(i));
+      }
+    </script>
+  </body>
+</html>
